@@ -7,11 +7,9 @@
 /backup/*
 **/nohup.out
 **/temp.py
+**/*.pptx
 
 /injection-molding/*.zip
-/injection-molding/*.pptx
 /injection-molding/注塑成型调机报告.pdf
-
-/tianchi-enso-prediction/*
 
 

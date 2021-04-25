@@ -2,7 +2,7 @@
 
 Thank you for understanding that my code can't be shared as I participated this on behalf of my company.
 
-![rank](./rank.png)
+<!-- ![rank](./rank.png) -->
 
 ## Key of this competition:
 - Solid understanding of data, feature and models are necessary

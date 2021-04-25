@@ -10,4 +10,4 @@ This is a collection of my data competition solutions, hope it helps.<br>
 | Date | Competition | Rank | Solution | Commentary |
 | :-- | :-- | :-- | :-- | :-- |
 | 2020-11 | [第四届工业大数据创新竞赛-注塑成型](http://www.industrial-bigdata.com/Competition) (regression) | **1st** /878 | [presentation](https://github.com/LongxingTan/Data-competitions/tree/master/injection-molding)| [video](http://kejiao.cctv.com/2020/11/24/VIDEs1nVMyT5IsTKuDvov5vQ201124.shtml?spm=C94255512193.P12720962538.0.0)|
-| 2021-03 | [天池-AI Earth人工智能创新挑战赛](https://tianchi.aliyun.com/competition/entrance/531871/introduction) (spatial-temporal ) | **5th** /2849 | [full code](https://github.com/LongxingTan/Data-competitions/tree/master/tianchi-enso-prediction) | [blog]() |
+| 2021-03 | [天池-AI Earth人工智能创新挑战赛](https://tianchi.aliyun.com/competition/entrance/531871/introduction) (spatial-temporal ) | **5th** /2849 | [code](https://github.com/LongxingTan/Data-competitions/tree/master/tianchi-enso-prediction) | [blog]() |
