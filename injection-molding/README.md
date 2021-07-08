@@ -21,3 +21,5 @@ Thank you for understanding that my code can't be shared as I participated this 
 - No hurry to run an experiment, make sure every experiment is reproducible and recorded. Try to explain every change, and treat it like a real project
 - It's a test of altitude during competition. Never give up until the last minute, trust myself and fight like a solider
 - Still need to improve my presentation skill. I don't have opportunity to present something since I transferred to a ML engineer these 2 years. But you can find that I'm still excellent at PowerPoint making, because during 5 years of my last job @ Mercedes, my main work is doing PPT and present it.
+
+哈哈哈
