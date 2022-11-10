@@ -1,0 +1,26 @@
+# Common
+README.md
+CHANGELOG.md
+docker-compose.yml
+Dockerfile
+
+/notebooks/*
+/reference/*
+/code/tree/*.csv
+/data/*
+/result/*
+docker_build.sh
+/.idea/*
+/user_data/*.csv
+/user_data/*.pickle
+
+**/__pycache__/
+**/.ipynb_checkpoints/
+**/.idea/*
+**/.pytest_cache/
+**/.DS_Store
+/backup/*
+**/nohup.out
+**/temp.py
+**/*.ckpt.index
+**/*.ckpt.data-00000-of-00001

@@ -1,0 +1,51 @@
+{
+	"resource_limits": {
+		"kernel_space_heap_size": "1500MB",
+		"kernel_space_stack_size": "1MB",
+		"user_space_size": "40000MB",
+		"max_num_of_threads": 512
+	},
+	"process": {
+		"default_stack_size": "4MB",
+		"default_heap_size": "128MB",
+		"default_mmap_size": "1000MB"
+	},
+	"entry_points": ["/bin"],
+	"env": {
+		"default": ["LD_LIBRARY_PATH=/usr/lib/jvm/java-11-openjdk-amd64/lib/server:/usr/lib/jvm/java-11-openjdk-amd64/lib:/usr/lib/jvm/java-11-openjdk-amd64/../lib:/lib", "FLINK_CONF_DIR=/opt/flink-1.11.2/conf", "FLINK_OPT_DIR=/opt/flink-1.11.2/opt", "PYFLINK_CLIENT_EXECUTABLE=/opt/python-occlum/bin/python3.7", "PYTHONHOME=/opt/python-occlum", "HOME=/root"],
+		"untrusted": ["EXAMPLE"]
+	},
+	"metadata": {
+		"product_id": 0,
+		"version_number": 0,
+		"debuggable": true
+	},
+	"mount": [{
+		"target": "/",
+		"type": "unionfs",
+		"options": {
+			"layers": [{
+				"target": "/",
+				"type": "sefs",
+				"source": "./build/mount/__ROOT",
+				"options": {
+					"MAC": ""
+				}
+			}, {
+				"target": "/",
+				"type": "sefs",
+				"source": "./run/mount/__ROOT"
+			}]
+		}
+	}, {
+		"target": "/host",
+		"type": "hostfs",
+		"source": "."
+	}, {
+		"target": "/proc",
+		"type": "procfs"
+	}, {
+		"target": "/dev",
+		"type": "devfs"
+	}]
+}
