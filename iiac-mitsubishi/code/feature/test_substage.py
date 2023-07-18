@@ -1,16 +1,19 @@
 # 准备数据，将t2\t8\t9的数据单独保存
 import sys
-sys.path.append('../dataset')
+
+sys.path.append("../dataset")
 
 import warnings
+
 warnings.filterwarnings("ignore")
 import os
+
+from filter_data_stage import *
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from prepare_data import *
-from filter_data_stage import *
+import seaborn as sns
 from substage import *
 
 
@@ -32,7 +35,7 @@ def test_train_t2(base_dir):
         data_new.append(example)
 
     data_new = pd.concat(data_new, axis=0)
-    data_new.to_csv('../../data/user_data/t2s1.csv', index=False)
+    data_new.to_csv("../../data/user_data/t2s1.csv", index=False)
 
 
 def test_test_t2(base_dir):
@@ -46,7 +49,7 @@ def test_test_t2(base_dir):
         data_new.append(example)
 
     data_new = pd.concat(data_new, axis=0)
-    data_new.to_csv('../../data/user_data/t2s1_test.csv', index=False)
+    data_new.to_csv("../../data/user_data/t2s1_test.csv", index=False)
 
 
 def test_train_t8(base_dir):
@@ -67,7 +70,7 @@ def test_train_t8(base_dir):
         data_new.append(example)
 
     data_new = pd.concat(data_new, axis=0)
-    data_new.to_csv('../../data/user_data/t8.csv', index=False)
+    data_new.to_csv("../../data/user_data/t8.csv", index=False)
 
 
 def test_test_t8(base_dir):
@@ -86,11 +89,11 @@ def test_test_t8(base_dir):
         data_new.append(example)
 
     data_new = pd.concat(data_new, axis=0)
-    data_new.to_csv('../../data/user_data/t8_test.csv', index=False)
+    data_new.to_csv("../../data/user_data/t8_test.csv", index=False)
 
 
 def test_train_t9(base_dir):
-    """ 测试训练集T9刀工作，顺便保存为中间数据
+    """测试训练集T9刀工作，顺便保存为中间数据
     :param base_dir:
     :return:
     """
@@ -109,7 +112,7 @@ def test_train_t9(base_dir):
         data_new.append(example)
 
     data_new = pd.concat(data_new, axis=0)
-    data_new.to_csv('../../data/user_data/t9.csv', index=False)
+    data_new.to_csv("../../data/user_data/t9.csv", index=False)
 
 
 def test_test_t9(base_dir):
@@ -128,16 +131,16 @@ def test_test_t9(base_dir):
         data_new.append(example)
 
     data_new = pd.concat(data_new, axis=0)
-    data_new.to_csv('../../data/user_data/t9_test.csv', index=False)
+    data_new.to_csv("../../data/user_data/t9_test.csv", index=False)
 
 
-if __name__ == '__main__':
-    base_dir = '../../data/1 训练用'
+if __name__ == "__main__":
+    base_dir = "../../data/1 训练用"
     test_train_t2(base_dir)
     test_train_t8(base_dir)
     test_train_t9(base_dir)
 
-    base_dir = '../../data/3 正式赛题'
+    base_dir = "../../data/3 正式赛题"
     test_test_t2(base_dir)
     test_test_t8(base_dir)
     test_test_t9(base_dir)

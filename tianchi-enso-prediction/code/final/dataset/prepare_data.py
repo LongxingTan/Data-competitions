@@ -6,11 +6,12 @@
 # feature: columns: year, month, log, lat, SST, T300, Ua, Va
 # 海表温度异常(SST)，热含量异常(T300)，纬向风异常（Ua），经向风异常（Va）
 
-import pandas as pd
-import numpy as np 
-from netCDF4 import Dataset
-import itertools
 import gc
+import itertools
+
+from netCDF4 import Dataset
+import numpy as np
+import pandas as pd
 
 
 def prepare_2d_feature(data_dir, save=False):
@@ -21,17 +22,21 @@ def prepare_2d_feature(data_dir, save=False):
         feature = np.array(variable[:])
         features.append(feature)
 
-    cols = list(itertools.product(features[4], features[5][:12], features[6], features[7]))
-    data = pd.DataFrame(cols, columns=['year', 'month', 'lat', 'lon'])
-    data['sst'] = features[0][:, :12, :, :].reshape(-1)
-    data['t300'] = features[1][:, :12, :, :].reshape(-1)
-    data['ua'] = features[2][:, :12, :, :].reshape(-1)
-    data['va'] = features[3][:, :12, :, :].reshape(-1)
+    cols = list(
+        itertools.product(features[4], features[5][:12], features[6], features[7])
+    )
+    data = pd.DataFrame(cols, columns=["year", "month", "lat", "lon"])
+    data["sst"] = features[0][:, :12, :, :].reshape(-1)
+    data["t300"] = features[1][:, :12, :, :].reshape(-1)
+    data["ua"] = features[2][:, :12, :, :].reshape(-1)
+    data["va"] = features[3][:, :12, :, :].reshape(-1)
 
     if save:
-        data.to_pickle('../user_data/' + data_dir.split('/')[-1].replace('.nc', '') + '.pickle')
+        data.to_pickle(
+            "../user_data/" + data_dir.split("/")[-1].replace(".nc", "") + ".pickle"
+        )
 
-    print('prepare 2d feature finished', data.shape)
+    print("prepare 2d feature finished", data.shape)
     del feature_nc
     gc.collect()
     return data
@@ -42,7 +47,7 @@ def prepare_2d_label(label_dir, save=False):
 
     labels = []
     for variable in label_nc.variables.values():
-        feature = np.array(variable[:, ])
+        feature = np.array(variable[:,])
         labels.append(feature)
 
     value = labels[0]
@@ -50,27 +55,43 @@ def prepare_2d_label(label_dir, save=False):
     columns = labels[2]
     label = pd.DataFrame(value, index=index, columns=columns)
 
-    label_long = label.iloc[:, :12]  # wide format to long format, take the first 12 months
-    label_long = label_long.reset_index().rename(columns={'index': 'year'})
-    label_long = pd.melt(label_long, id_vars=['year'], value_vars=[i for i in label_long.columns if i not in ['year']])
-    label_long.rename(columns={'variable': 'month', 'value': 'nino'}, inplace=True)
-    label_long.sort_values(by=['year', 'month'], ascending=True, inplace=True) 
-    label_long.index = range(len(label_long))  
+    label_long = label.iloc[
+        :, :12
+    ]  # wide format to long format, take the first 12 months
+    label_long = label_long.reset_index().rename(columns={"index": "year"})
+    label_long = pd.melt(
+        label_long,
+        id_vars=["year"],
+        value_vars=[i for i in label_long.columns if i not in ["year"]],
+    )
+    label_long.rename(columns={"variable": "month", "value": "nino"}, inplace=True)
+    label_long.sort_values(by=["year", "month"], ascending=True, inplace=True)
+    label_long.index = range(len(label_long))
 
     if save:
-        label_long.to_pickle('../user_data/' + label_dir.split('/')[-1].replace('.nc', '') + '.pickle')
-    print('prepare 2d label finished', label_long.shape)
+        label_long.to_pickle(
+            "../user_data/" + label_dir.split("/")[-1].replace(".nc", "") + ".pickle"
+        )
+    print("prepare 2d label finished", label_long.shape)
     del label_nc
     gc.collect()
     return label_long
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # cd code
     # python dataset/prepare_data.py
-    base_dir='../tcdata'
-    prepare_2d_feature(data_dir=base_dir + '/enso_round1_train_20210201/SODA_train.nc', save=True)
-    prepare_2d_label(label_dir=base_dir + '/enso_round1_train_20210201/SODA_label.nc', save=True)
-    prepare_2d_feature(data_dir=base_dir + '/enso_round1_train_20210201/CMIP_train.nc', save=True)
-    prepare_2d_label(label_dir=base_dir + '/enso_round1_train_20210201/CMIP_label.nc', save=True)
-    print('prepare done')
+    base_dir = "../tcdata"
+    prepare_2d_feature(
+        data_dir=base_dir + "/enso_round1_train_20210201/SODA_train.nc", save=True
+    )
+    prepare_2d_label(
+        label_dir=base_dir + "/enso_round1_train_20210201/SODA_label.nc", save=True
+    )
+    prepare_2d_feature(
+        data_dir=base_dir + "/enso_round1_train_20210201/CMIP_train.nc", save=True
+    )
+    prepare_2d_label(
+        label_dir=base_dir + "/enso_round1_train_20210201/CMIP_label.nc", save=True
+    )
+    print("prepare done")

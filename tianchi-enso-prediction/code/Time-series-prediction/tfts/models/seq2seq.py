@@ -12,17 +12,17 @@
 #   A Dual-Stage Attention-Based recurrent neural network for time series prediction. https://arxiv.org/abs/1704.02971
 
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, GRUCell, LSTMCell, RNN, GRU
+from tensorflow.keras.layers import GRU, RNN, Dense, GRUCell, LSTMCell
+
 from ..layers.attention_layer import Attention
 
-
 params = {
-    'rnn_size': 64,
-    'dense_size': 16,
-    'num_stacked_layers': 1,
-    'use_attention': True,
-    'teacher_forcing': True,
-    'scheduler_sampling': False
+    "rnn_size": 64,
+    "dense_size": 16,
+    "num_stacked_layers": 1,
+    "use_attention": True,
+    "teacher_forcing": True,
+    "scheduler_sampling": False,
 }
 
 
@@ -46,38 +46,64 @@ class Seq2Seq(object):
 
         decoder_init_input = x[:, -1, 0:1]
         init_state = encoder_state
-        decoder_output = self.decoder(decoder_feature, init_state, decoder_init_input,
-                                      encoder_output=encoder_output,
-                                      teacher=teacher,
-                                      use_attention=self.params['use_attention'])
+        decoder_output = self.decoder(
+            decoder_feature,
+            init_state,
+            decoder_init_input,
+            encoder_output=encoder_output,
+            teacher=teacher,
+            use_attention=self.params["use_attention"],
+        )
         return decoder_output
 
 
 class Encoder(object):
     def __init__(self, params):
         self.params = params
-        self.rnn1 = GRU(units=64, activation='tanh', return_sequences=True, return_state=False, dropout=0.24)
-        self.rnn2 = GRU(units=64, activation='tanh', return_sequences=True, return_state=True, dropout=0.24)
-        self.dense1 = Dense(units=62, activation='tanh')
+        self.rnn1 = GRU(
+            units=64,
+            activation="tanh",
+            return_sequences=True,
+            return_state=False,
+            dropout=0.24,
+        )
+        self.rnn2 = GRU(
+            units=64,
+            activation="tanh",
+            return_sequences=True,
+            return_state=True,
+            dropout=0.24,
+        )
+        self.dense1 = Dense(units=62, activation="tanh")
 
     def __call__(self, inputs, training=None, mask=None):
         # outputs: batch_size * input_seq_length * rnn_size, state: batch_size * rnn_size
         x = self.rnn1(inputs)
         encoder_output, encoder_state = self.rnn2(x)
-        #encoder_hidden_state = tuple(self.dense(hidden_state) for _ in range(params['num_stacked_layers']))
-        encoder_state = self.dense1(encoder_state)  # => batch_size * input_seq_length * dense_size
+        # encoder_hidden_state = tuple(self.dense(hidden_state) for _ in range(params['num_stacked_layers']))
+        encoder_state = self.dense1(
+            encoder_state
+        )  # => batch_size * input_seq_length * dense_size
         return encoder_output, encoder_state
 
 
 class Decoder2(object):
     def __init__(self, params):
         self.params = params
-        self.predict_window_sizes = params['predict_sequence_length']
-        self.rnn_cell = GRUCell(self.params['rnn_size'])
+        self.predict_window_sizes = params["predict_sequence_length"]
+        self.rnn_cell = GRUCell(self.params["rnn_size"])
         self.dense = Dense(units=1)
         self.attention = Attention(hidden_size=32, num_heads=2, attention_dropout=0.8)
 
-    def __call__(self, decoder_inputs, init_state, init_value, encoder_output, teacher=None, use_attention=False):
+    def __call__(
+        self,
+        decoder_inputs,
+        init_state,
+        init_value,
+        encoder_output,
+        teacher=None,
+        use_attention=False,
+    ):
         decoder_outputs = []
         prev_output = init_value
         prev_state = init_state
@@ -86,7 +112,7 @@ class Decoder2(object):
             if teacher is None:
                 this_input = tf.concat([prev_output, decoder_inputs[:, i]], axis=-1)
             else:
-                this_input = tf.concat([teacher[:, i: i + 1], decoder_inputs[:, i]])
+                this_input = tf.concat([teacher[:, i : i + 1], decoder_inputs[:, i]])
             if use_attention:
                 att = self.attention((prev_state, encoder_output, encoder_output))
                 this_input = tf.concat([this_input, att], axis=-1)

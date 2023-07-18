@@ -7,23 +7,25 @@
 
 import gc
 import itertools
-import pandas as pd
-import numpy as np
-import tensorflow as tf
 import random
+
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+
 random.seed(315)
 
 
-def prepare_data(data, label=None):    
-    n_lat = len(np.unique(data['lat']))
-    n_lon = len(np.unique(data['lon']))
-    sst = data['sst'].values.reshape(-1, n_lat, n_lon)
-    t300 = data['t300'].values.reshape(-1, n_lat, n_lon)
-    ua = data['ua'].values.reshape(-1, n_lat, n_lon)
-    va = data['va'].values.reshape(-1, n_lat, n_lon)
-    month = data['month'].values[::24*72].astype(float)    
-    
-    if label is not None:  
+def prepare_data(data, label=None):
+    n_lat = len(np.unique(data["lat"]))
+    n_lon = len(np.unique(data["lon"]))
+    sst = data["sst"].values.reshape(-1, n_lat, n_lon)
+    t300 = data["t300"].values.reshape(-1, n_lat, n_lon)
+    ua = data["ua"].values.reshape(-1, n_lat, n_lon)
+    va = data["va"].values.reshape(-1, n_lat, n_lon)
+    month = data["month"].values[:: 24 * 72].astype(float)
+
+    if label is not None:
         label = label.values[:, -1]
         del data
         gc.collect()
@@ -32,88 +34,122 @@ def prepare_data(data, label=None):
 
 
 class DataReader(object):
-    def __init__(self, data, train_sequence_length=12, predict_sequence_length=24, random_select=False, random_gap=6, random_fold=0, random_keep_ratio=False, idx=None, target_month=None):        
-        self.data = data[0: 4]    
-        self.month = data[4]    
+    def __init__(
+        self,
+        data,
+        train_sequence_length=12,
+        predict_sequence_length=24,
+        random_select=False,
+        random_gap=6,
+        random_fold=0,
+        random_keep_ratio=False,
+        idx=None,
+        target_month=None,
+    ):
+        self.data = data[0:4]
+        self.month = data[4]
         self.label = data[-1]
         self.train_sequence_length = train_sequence_length
         self.predict_sequence_length = predict_sequence_length
         self.target_month = target_month
 
-        print('choose: ', len(idx) if idx is not None else 0)
+        print("choose: ", len(idx) if idx is not None else 0)
         # if use CMIP, filter the mode
         if idx is None:
-            self.idx = range(len(self.data[0]) - (self.train_sequence_length + self.predict_sequence_length))  
+            self.idx = range(
+                len(self.data[0])
+                - (self.train_sequence_length + self.predict_sequence_length)
+            )
         else:
-            self.idx = idx        
+            self.idx = idx
 
-        if random_select:  
+        if random_select:
             # random
-            lottery_pool = [self.idx[i: i +12] for i in range(0, len(self.idx)-12, random_gap)]  # 每gap个月选取一段，每段包含12个，每段随机选取一个
-            #lottery = [random.choice(i) for i in lottery_pool]
-            lottery = [item[(random.choice(range(12)) + random_fold) % 12] for item in lottery_pool]
+            lottery_pool = [
+                self.idx[i : i + 12] for i in range(0, len(self.idx) - 12, random_gap)
+            ]  # 每gap个月选取一段，每段包含12个，每段随机选取一个
+            # lottery = [random.choice(i) for i in lottery_pool]
+            lottery = [
+                item[(random.choice(range(12)) + random_fold) % 12]
+                for item in lottery_pool
+            ]
             self.idx = lottery
             # print('select', [i%12 for i in lottery])
-        
+
         if random_keep_ratio:
             pass
         # print(self.idx)
 
     def __getitem__(self, idx):
-        '''
+        """
         x_train: First dim is time, 2nd and 3rd are long/lat
         :param idx:
         :return:
-        '''
+        """
         train_end_idx = idx + self.train_sequence_length
-        sst = self.data[0][idx: train_end_idx]
-        t300 = self.data[1][idx: train_end_idx]
-        ua = self.data[2][idx: train_end_idx]
-        va = self.data[3][idx: train_end_idx]
-        month = self.month[idx: train_end_idx] - 1
+        sst = self.data[0][idx:train_end_idx]
+        t300 = self.data[1][idx:train_end_idx]
+        ua = self.data[2][idx:train_end_idx]
+        va = self.data[3][idx:train_end_idx]
+        month = self.month[idx:train_end_idx] - 1
         if self.target_month is None:  # all future 24 months
-            label = self.label[train_end_idx: train_end_idx + self.predict_sequence_length]  
+            label = self.label[
+                train_end_idx : train_end_idx + self.predict_sequence_length
+            ]
         else:
-            label = self.label[(train_end_idx + self.target_month):(train_end_idx + self.target_month + 1)] 
+            label = self.label[
+                (train_end_idx + self.target_month) : (
+                    train_end_idx + self.target_month + 1
+                )
+            ]
 
         return (sst, t300, ua, va, month), label
 
     def load_feature_and_label(self, idx):
         train_end_idx = idx + self.train_sequence_length
-        sst = self.data[0][idx: train_end_idx]
-        t300 = self.data[1][idx: train_end_idx]
-        ua = self.data[2][idx: train_end_idx]
-        va = self.data[3][idx: train_end_idx]
-        month = self.month[idx: train_end_idx]
+        sst = self.data[0][idx:train_end_idx]
+        t300 = self.data[1][idx:train_end_idx]
+        ua = self.data[2][idx:train_end_idx]
+        va = self.data[3][idx:train_end_idx]
+        month = self.month[idx:train_end_idx]
         if self.target_month is None:  # all future 24 months
-            label = self.label[train_end_idx: train_end_idx + self.predict_sequence_length]  
+            label = self.label[
+                train_end_idx : train_end_idx + self.predict_sequence_length
+            ]
         else:
-            label = self.label[(train_end_idx + self.target_month):(train_end_idx + self.target_month + 1)] 
-  
+            label = self.label[
+                (train_end_idx + self.target_month) : (
+                    train_end_idx + self.target_month + 1
+                )
+            ]
+
         return (sst, t300, ua, va, month), label
 
     def load_mixup_feature_and_label(self, idx):
         (sst, t300, ua, va, month), label = self.load_feature_and_label(idx)
-        (sst2, t3002, ua2, va2, month), label2 = self.load_feature_and_label(random.randint(self.idx))
+        (sst2, t3002, ua2, va2, month), label2 = self.load_feature_and_label(
+            random.randint(self.idx)
+        )
         return
 
     def __len__(self):
         return len(self.idx)
-    
+
     def __iter__(self):
         return self.iter()
 
     def iter(self):
-        '''
-        Use it in TF: 
-        dataset = tf.data.Dataset.from_generator(data_reader.iter,
-                                                 output_types=((tf.float32, tf.float32, tf.float32, tf.float32), tf.float32),
-                                                 )
+        """
+        Use it in TF:
+        dataset = tf.data.Dataset.from_generator(
+        data_reader.iter,
+        output_types=((tf.float32, tf.float32, tf.float32, tf.float32), tf.float32),
+        )
         Use it in Torch: To be clarified
-        data_iter = 
+        data_iter =
         dataset = torch.utils.data.DataLoader(data_iter, batch_size=fit_params['batch_size'], shuffle=True)
 
-        '''
+        """
         for i in self.idx:
             yield self[i]
 
@@ -122,12 +158,18 @@ class DataLoaderTF(object):
     def __init__(self, data_reader):
         self.data_reader = data_reader
 
-    def __call__(self, batch_size, shuffle=False): 
-        dataset = tf.data.Dataset.from_generator(self.data_reader.iter,
-                                                output_types=((tf.float32, tf.float32, tf.float32, tf.float32, tf.float32), tf.float32),
-                                                )
+    def __call__(self, batch_size, shuffle=False):
+        dataset = tf.data.Dataset.from_generator(
+            self.data_reader.iter,
+            output_types=(
+                (tf.float32, tf.float32, tf.float32, tf.float32, tf.float32),
+                tf.float32,
+            ),
+        )
 
         if shuffle:
             dataset = dataset.shuffle(buffer_size=500)
-        dataset = dataset.batch(batch_size, drop_remainder=False).prefetch(tf.data.experimental.AUTOTUNE)
+        dataset = dataset.batch(batch_size, drop_remainder=False).prefetch(
+            tf.data.experimental.AUTOTUNE
+        )
         return dataset

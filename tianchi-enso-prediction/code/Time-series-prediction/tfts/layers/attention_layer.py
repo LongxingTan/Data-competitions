@@ -4,17 +4,18 @@
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.layers import Conv1D, Dropout, Dense, LayerNormalization
+from tensorflow.keras.layers import Conv1D, Dense, Dropout, LayerNormalization
 
 
 class Attention(tf.keras.layers.Layer):
-    """ Multi-head attention layer
+    """Multi-head attention layer"""
 
-    """
-    def __init__(self, hidden_size, num_heads, attention_dropout=0.):
+    def __init__(self, hidden_size, num_heads, attention_dropout=0.0):
         if hidden_size % num_heads:
-            raise ValueError("Hidden size ({}) must be divisible by the number of heads ({})."
-                             .format(hidden_size, num_heads))
+            raise ValueError(
+                "Hidden size ({}) must be divisible by the number of heads ({})."
+                .format(hidden_size, num_heads)
+            )
         super(Attention, self).__init__()
         self.units = hidden_size
         self.num_heads = num_heads
@@ -42,11 +43,15 @@ class Attention(tf.keras.layers.Layer):
         k = self.dense_k(k)
         v = self.dense_v(v)
 
-        q_ = tf.concat(tf.split(q, self.num_heads, axis=2), axis=0)  # multi-heads transfer to
+        q_ = tf.concat(
+            tf.split(q, self.num_heads, axis=2), axis=0
+        )  # multi-heads transfer to
         k_ = tf.concat(tf.split(k, self.num_heads, axis=2), axis=0)
         v_ = tf.concat(tf.split(v, self.num_heads, axis=2), axis=0)
 
-        score = tf.linalg.matmul(q_, k_, transpose_b=True)  # => (batch*heads) * seq_q * seq_k
+        score = tf.linalg.matmul(
+            q_, k_, transpose_b=True
+        )  # => (batch*heads) * seq_q * seq_k
         score /= tf.cast(tf.shape(q_)[-1], tf.float32) ** 0.5
 
         if mask is not None:
@@ -61,9 +66,11 @@ class Attention(tf.keras.layers.Layer):
 
 
 class SelfAttention(tf.keras.layers.Layer):
-    def __init__(self, hidden_size, num_heads, attention_dropout=0.):
+    def __init__(self, hidden_size, num_heads, attention_dropout=0.0):
         super(SelfAttention, self).__init__()
-        self.attention = Attention(hidden_size, num_heads, attention_dropout=attention_dropout)
+        self.attention = Attention(
+            hidden_size, num_heads, attention_dropout=attention_dropout
+        )
 
     def call(self, x, mask=None):
         return self.attention(x, x, x, mask)
@@ -75,7 +82,9 @@ class FeedForwardNetwork(tf.keras.layers.Layer):
         self.hidden_size = hidden_size
         self.filter_size = filter_size
         self.relu_dropout = relu_dropout
-        self.filter_dense_layer = Dense(self.filter_size, use_bias=True, activation='relu')
+        self.filter_dense_layer = Dense(
+            self.filter_size, use_bias=True, activation="relu"
+        )
         self.output_dense_layer = Dense(self.hidden_size, use_bias=True)
 
     def forward(self, x, training):
@@ -102,19 +111,20 @@ class TokenEmbedding(tf.keras.layers.Layer):
         self.embedding_size = embedding_size
 
     def build(self, input_shape):
-        self.token_weights = self.add_weight(name='token_weights',
-                                             shape=[input_shape[-1], self.embedding_size],
-                                             initializer=tf.random_normal_initializer(mean=0.,
-                                                                                      stddev=self.embedding_size ** -0.5))
+        self.token_weights = self.add_weight(
+            name="token_weights",
+            shape=[input_shape[-1], self.embedding_size],
+            initializer=tf.random_normal_initializer(
+                mean=0.0, stddev=self.embedding_size**-0.5
+            ),
+        )
         super(TokenEmbedding, self).build(input_shape)
 
     def get_config(self):
-        return {
-            'embedding_size': self.embedding_size
-        }
+        return {"embedding_size": self.embedding_size}
 
     def call(self, x):
-        y = tf.einsum('bsf,fk->bsk', x, self.token_weights)
+        y = tf.einsum("bsf,fk->bsk", x, self.token_weights)
         return y
 
 
@@ -127,17 +137,21 @@ class PositionEmbedding(tf.keras.layers.Layer):
         super(PositionEmbedding, self).build(input_shape)
 
     def get_config(self):
-        return {
-            'max_len': self.max_len
-        }
+        return {"max_len": self.max_len}
 
     def call(self, x, masking=True):
         E = x.get_shape().as_list()[-1]  # static
         batch_size, seq_length = tf.shape(x)[0], tf.shape(x)[1]  # dynamic
 
-        position_ind = tf.tile(tf.expand_dims(tf.range(seq_length), 0), [batch_size, 1])  # => batch_size*seq_length
+        position_ind = tf.tile(
+            tf.expand_dims(tf.range(seq_length), 0), [batch_size, 1]
+        )  # => batch_size*seq_length
         position_enc = np.array(
-            [[pos / np.power(10000, (i - i % 2) / E) for i in range(E)] for pos in range(self.max_len)])
+            [
+                [pos / np.power(10000, (i - i % 2) / E) for i in range(E)]
+                for pos in range(self.max_len)
+            ]
+        )
 
         position_enc[:, 0::2] = np.sin(position_enc[:, 0::2])
         position_enc[:, 1::2] = np.cos(position_enc[:, 1::2])
@@ -158,17 +172,21 @@ class PositionEncoding(tf.keras.layers.Layer):
         super(PositionEncoding, self).build(input_shape)
 
     def get_config(self):
-        return {
-            'max_len': self.max_len
-        }
+        return {"max_len": self.max_len}
 
     def call(self, x, masking=True):
         E = x.get_shape().as_list()[-1]  # static
         batch_size, seq_length = tf.shape(x)[0], tf.shape(x)[1]  # dynamic
-        with tf.name_scope('position_encode'):
-            position_ind = tf.tile(tf.expand_dims(tf.range(seq_length), 0), [batch_size, 1])  # => batch_size*seq_length
+        with tf.name_scope("position_encode"):
+            position_ind = tf.tile(
+                tf.expand_dims(tf.range(seq_length), 0), [batch_size, 1]
+            )  # => batch_size*seq_length
             position_enc = np.array(
-                [[pos / np.power(10000, (i - i % 2) / E) for i in range(E)] for pos in range(self.max_len)])
+                [
+                    [pos / np.power(10000, (i - i % 2) / E) for i in range(E)]
+                    for pos in range(self.max_len)
+                ]
+            )
 
             position_enc[:, 0::2] = np.sin(position_enc[:, 0::2])
             position_enc[:, 1::2] = np.cos(position_enc[:, 1::2])
