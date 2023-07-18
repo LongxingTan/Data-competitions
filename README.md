@@ -11,7 +11,7 @@
 
 | 日期 | 比赛 | 排名 | 方案 | 解说 |
 | :-- | :-- | :-- | :-- | :-- |
-| 2023-06 | [IJCAI-CoachAI羽毛球比赛Track 2](https://sites.google.com/view/coachai-challenge-2023/tasks/track2) | **4th** /59 | [code](https://github.com/LongxingTan/Data-competitions/ijcai-badminton) | [-]() |
+| 2023-06 | [IJCAI-CoachAI羽毛球比赛Track 2](https://sites.google.com/view/coachai-challenge-2023/tasks/track2) | **4th** /59 | [code](https://github.com/LongxingTan/Data-competitions/tree/master/ijcai-badminton) | [-]() |
 | 2022-08 | [移动云杯算力网络应用创新大赛](https://ecloud.10086.cn/api/query/developer/user/home.html?ticket=ST-723-XerOpAXk2r6fjD49I5Xl-cas01.example.org#/api/query/developer/match/matchspecialpage.html?way=DC) | **3rd** /215 | [code](https://github.com/LongxingTan/Data-competitions/tree/master/dc-mobile) | - |
 | 2022-07 | [KDD Cup 2022-百度风机功率预测](https://aistudio.baidu.com/aistudio/competition/detail/152/0/introduction) | **3rd** /2490 | [code](https://github.com/LongxingTan/KDDCup2022-Baidu) | [report](https://baidukddcup2022.github.io/papers/Baidu_KDD_Cup_2022_Workshop_paper_2696.pdf)/ [video](https://youtu.be/OuBnMvirwoQ?t=5074)  |
 | 2022-03 | [山东-后疫情时代的民宿空置房预测](http://data.sd.gov.cn/cmpt/cmptDetail.html?id=58) | **1st** /278 | [code](https://github.com/LongxingTan/Data-competitions/tree/master/shandong-hotel) | [blog](https://mp.weixin.qq.com/s/wWwCcih-VOy5rQo7PpI1Pg) |
